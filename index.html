@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Выбери приз</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: center/cover no-repeat;
+      color: #2d1b4e;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+    }
+
+    .game-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      padding: 22px 16px;
+      width: min(calc(100vw - 20px), 420px);
+      background: rgba(255, 245, 255, 0.82);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      border-radius: 24px;
+      border: 1.5px solid rgba(255, 255, 255, 0.7);
+      box-shadow: 0 8px 40px rgba(140, 30, 100, 0.18);
+    }
+
+    .title {
+      font-size: 1.55rem;
+      font-weight: 700;
+      color: #7c3aed;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    .subtitle {
+      font-size: 0.78rem;
+      color: #7e22ce;
+      letter-spacing: 1px;
+      text-align: center;
+      min-height: 1.2em;
+    }
+
+    /* Grid */
+    #grid {
+      display: grid;
+      grid-template-columns: repeat(3, var(--card, 100px));
+      gap: var(--gap, 10px);
+      position: relative;
+    }
+
+    /* Card wrapper */
+    .card {
+      width: var(--card, 100px);
+      height: var(--card, 100px);
+      perspective: 600px;
+      cursor: default;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    .card.is-absolute {
+      position: absolute;
+      transition: top 0.3s ease, left 0.3s ease;
+    }
+
+    /* Inner rotating element */
+    .card-inner {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.5s ease;
+      border-radius: 13px;
+    }
+
+    .card.flipped .card-inner {
+      transform: rotateY(180deg);
+    }
+
+    /* Shared face styles */
+    .front,
+    .back {
+      position: absolute;
+      inset: 0;
+      border-radius: 13px;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Front face — prize name visible */
+    .front {
+      background: url('front.png') center/cover no-repeat;
+      border: 2px solid #2563eb;
+      box-shadow: 0 4px 18px #2563eb44;
+    }
+
+    .prize-name {
+      font-size: 11px;
+      font-weight: 700;
+      color: #1e293b;
+      text-align: center;
+      padding: 8px 6px;
+      line-height: 1.35;
+      word-break: break-word;
+      pointer-events: none;
+    }
+
+    /* Back face — shown face-down */
+    .back {
+      background: url('back.png') center/cover no-repeat;
+      border: 2px solid #1e2a3a;
+      box-shadow: 0 4px 18px #00000055;
+      transform: rotateY(180deg);
+    }
+
+    .card-symbol {
+      font-size: 30px;
+      pointer-events: none;
+    }
+
+    /* Selectable state (waiting phase) */
+    .card.selectable {
+      cursor: pointer;
+    }
+
+    .card.selectable:hover .front {
+      border-color: #60a5fa;
+      box-shadow: 0 0 22px #3b82f688;
+    }
+
+    .card.selectable:hover .back {
+      border-color: #60a5fa;
+      box-shadow: 0 0 22px #3b82f688;
+    }
+
+    /* Selected card (winner) */
+    .card.selected .front {
+      background: linear-gradient(145deg, #14532d, #0f3d21);
+      border-color: #22c55e;
+      box-shadow: 0 0 32px #22c55e66;
+    }
+
+    .card.selected .prize-name {
+      color: #e2e8f0;
+    }
+
+    /* Non-selected after reveal */
+    .card.not-selected .front {
+      opacity: 0.65;
+    }
+
+    /* Pop-in animation for selected card */
+    @keyframes popIn {
+      0%   { transform: rotateY(0deg) scale(0.88); }
+      60%  { transform: rotateY(0deg) scale(1.07); }
+      100% { transform: rotateY(0deg) scale(1); }
+    }
+
+    .card.selected .card-inner {
+      animation: popIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    /* Controls */
+    .controls {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      min-height: 46px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn {
+      padding: 11px 28px;
+      background: linear-gradient(145deg, #a855f7, #9333ea);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 4px 18px #9333ea44;
+      transition: all 0.2s;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn:hover {
+      background: linear-gradient(145deg, #c084fc, #a855f7);
+      box-shadow: 0 6px 26px #a855f766;
+      transform: translateY(-1px);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn.btn-remove {
+      background: linear-gradient(145deg, #e11d48, #be123c);
+      box-shadow: 0 4px 18px #e11d4844;
+    }
+
+    .btn.btn-remove:hover {
+      background: linear-gradient(145deg, #f43f5e, #e11d48);
+      box-shadow: 0 6px 26px #f43f5e66;
+    }
+
+    .btn.btn-remove.active {
+      background: linear-gradient(145deg, #6b21a8, #581c87);
+      box-shadow: 0 4px 18px #6b21a844;
+    }
+
+    /* Removable state */
+    .card.removable {
+      cursor: pointer;
+    }
+
+    .card.removable:hover .front {
+      border-color: #ef4444;
+      box-shadow: 0 0 22px #ef444488;
+    }
+
+    @keyframes removeCard {
+      to { opacity: 0; transform: scale(0.7); }
+    }
+
+    .card.removing-anim .card-inner {
+      animation: removeCard 0.28s ease forwards;
+    }
+
+    @media (max-width: 360px) {
+      .title    { font-size: 1.2rem; letter-spacing: 2px; }
+      .subtitle { font-size: 0.72rem; }
+      .btn      { padding: 10px 18px; font-size: 0.82rem; letter-spacing: 0.5px; }
+      .game-container { gap: 12px; padding: 16px 12px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <h1 class="title">Выиграй один из призов</h1>
+    <p class="subtitle" id="subtitle">Нажми «Играть», чтобы начать</p>
+    <div id="grid"></div>
+    <div class="controls">
+      <button class="btn" id="playBtn">Играть</button>
+      <button class="btn btn-remove" id="removeBtn">Убрать приз</button>
+      <button class="btn" id="replayBtn" hidden>Ещё раз</button>
+    </div>
+  </div>
+
+  <script>
+    const ALL_PRIZES = [
+      'Кофе', '-10%', '-15%', '-20%',
+      'Фишка с котом', 'Скидка на сладкое',
+      'Кошачий корм', 'Предсказание',
+      '50 бонусов', 'Билет', 'Дополнительный ход'
+    ];
+
+    const MAX_CARDS      = 9;
+    const SHUFFLE_ROUNDS = 6;
+    const ROUND_MS       = 350;
+    const FLIP_MS        = 500;
+    const FLIP_SETTLE_MS = 620;
+
+    let phase        = 'initial';
+    let prizes       = [];
+    let cardOrder    = [];
+    let removedSlots = new Set();
+    let removalsUsed = 0;
+
+    function shuffle(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function computeCardSize() {
+      const gap     = 10;
+      const padding = 60;
+      const maxCard = 100;
+      const card    = Math.min(maxCard, Math.floor((window.innerWidth - padding) / 3 - gap));
+      document.documentElement.style.setProperty('--card', card + 'px');
+      document.documentElement.style.setProperty('--gap', gap + 'px');
+      return { card, gap };
+    }
+
+    function renderCards() {
+      const grid = document.getElementById('grid');
+      grid.innerHTML = '';
+      for (let i = 0; i < prizes.length; i++) {
+        const prize = prizes[cardOrder[i]];
+        const el = document.createElement('div');
+        el.className = 'card';
+        el.dataset.index = i;
+        el.innerHTML = `
+          <div class="card-inner">
+            <div class="front"><span class="prize-name">${prize}</span></div>
+            <div class="back"></div>
+          </div>`;
+        grid.appendChild(el);
+      }
+    }
+
+    function setCardsSelectable(enabled) {
+      document.querySelectorAll('.card').forEach((card, i) => {
+        if (enabled) {
+          card.classList.add('selectable');
+          card.addEventListener('click', () => onCardClick(i), { once: true });
+        } else {
+          card.classList.remove('selectable');
+        }
+      });
+    }
+
+    function updateRemoveBtn() {
+      const btn = document.getElementById('removeBtn');
+      if (removalsUsed >= 2) { btn.hidden = true; return; }
+      const price = removalsUsed === 0 ? 5 : 10;
+      btn.hidden = false;
+      btn.innerHTML = `Удалить приз <img src="logo.png" style="height:0.9em;vertical-align:middle;margin-left:4px;"> ${price}`;
+    }
+
+    function setCardsRemovable(enabled) {
+      document.querySelectorAll('.card').forEach((card, i) => {
+        if (enabled) {
+          if (removedSlots.has(i)) return;
+          card.classList.add('removable');
+          card.addEventListener('click', () => onRemoveCardClick(i), { once: true });
+        } else {
+          card.classList.remove('removable');
+        }
+      });
+    }
+
+    function initGame() {
+      phase     = 'initial';
+      prizes    = shuffle([...ALL_PRIZES]).slice(0, MAX_CARDS);
+      cardOrder = Array.from({ length: prizes.length }, (_, i) => i);
+      removedSlots = new Set();
+      removalsUsed = 0;
+      computeCardSize();
+      renderCards();
+      document.getElementById('subtitle').textContent = 'Нажми «Играть», чтобы начать';
+      document.getElementById('playBtn').hidden       = false;
+      document.getElementById('replayBtn').hidden     = true;
+      document.getElementById('removeBtn').classList.remove('active');
+      updateRemoveBtn();
+    }
+
+    function toggleRemoveMode() {
+      if (phase === 'removing') {
+        phase = 'initial';
+        document.getElementById('subtitle').textContent = 'Нажми «Играть», чтобы начать';
+        document.getElementById('removeBtn').classList.remove('active');
+        updateRemoveBtn();
+        setCardsRemovable(false);
+      } else if (phase === 'initial') {
+        phase = 'removing';
+        document.getElementById('subtitle').textContent  = 'Нажми на приз, чтобы убрать его';
+        document.getElementById('removeBtn').textContent = 'Отмена';
+        document.getElementById('removeBtn').classList.add('active');
+        setCardsRemovable(true);
+      }
+    }
+
+    function onRemoveCardClick(clickedIdx) {
+      if (phase !== 'removing') return;
+      setCardsRemovable(false);
+
+      const cards = Array.from(document.querySelectorAll('.card'));
+      cards[clickedIdx].classList.add('removing-anim');
+
+      setTimeout(() => {
+        removedSlots.add(clickedIdx);
+        cards[clickedIdx].style.visibility = 'hidden';
+        removalsUsed++;
+
+        phase = 'initial';
+        document.getElementById('subtitle').textContent = 'Нажми «Играть», чтобы начать';
+        document.getElementById('removeBtn').classList.remove('active');
+        updateRemoveBtn();
+      }, 300);
+    }
+
+    function startGame() {
+      if (phase !== 'initial' && phase !== 'removing') return;
+      setCardsRemovable(false);
+
+      // Rebuild prizes list excluding removed slots
+      if (removedSlots.size > 0) {
+        prizes = Array.from({ length: prizes.length }, (_, i) => i)
+          .filter(i => !removedSlots.has(i))
+          .map(i => prizes[cardOrder[i]]);
+        cardOrder    = Array.from({ length: prizes.length }, (_, i) => i);
+        removedSlots = new Set();
+        renderCards();
+      }
+
+      phase = 'flipping';
+      document.getElementById('playBtn').hidden   = true;
+      document.getElementById('removeBtn').hidden = true;
+      document.getElementById('removeBtn').classList.remove('active');
+      document.getElementById('subtitle').textContent = '';
+
+      document.querySelectorAll('.card').forEach(c => c.classList.add('flipped'));
+
+      setTimeout(runShuffle, FLIP_SETTLE_MS);
+    }
+
+    function runShuffle() {
+      phase = 'shuffling';
+
+      const gridEl = document.getElementById('grid');
+      const cards  = Array.from(gridEl.querySelectorAll('.card'));
+      const n      = cards.length;
+      const { card: cardSz, gap } = computeCardSize();
+
+      const gridRect = gridEl.getBoundingClientRect();
+      const initPos  = cards.map(c => {
+        const r = c.getBoundingClientRect();
+        return { top: r.top - gridRect.top, left: r.left - gridRect.left };
+      });
+
+      const cols   = 3;
+      const rows   = Math.ceil(n / cols);
+      gridEl.style.width   = (cols * cardSz + (cols - 1) * gap) + 'px';
+      gridEl.style.height  = (rows * cardSz + (rows - 1) * gap) + 'px';
+      gridEl.style.display = 'block';
+
+      const slotPos = Array.from({ length: n }, (_, idx) => ({
+        top:  Math.floor(idx / cols) * (cardSz + gap),
+        left: (idx % cols)           * (cardSz + gap),
+      }));
+
+      cards.forEach((c, i) => {
+        c.classList.add('is-absolute');
+        c.style.top    = initPos[i].top  + 'px';
+        c.style.left   = initPos[i].left + 'px';
+        c.style.width  = cardSz + 'px';
+        c.style.height = cardSz + 'px';
+      });
+
+      let currentSlots = Array.from({ length: n }, (_, i) => i);
+
+      let round = 0;
+      function doRound() {
+        if (round >= SHUFFLE_ROUNDS) {
+          finishShuffle(cards, currentSlots, slotPos, gridEl);
+          return;
+        }
+
+        const idxs      = shuffle(Array.from({ length: n }, (_, i) => i));
+        const pairCount = Math.floor(n / 2);
+        const pairs     = Array.from({ length: pairCount }, (_, p) => [idxs[p * 2], idxs[p * 2 + 1]]);
+
+        pairs.forEach(([a, b]) => {
+          const tmp      = currentSlots[a];
+          currentSlots[a] = currentSlots[b];
+          currentSlots[b] = tmp;
+        });
+
+        cards.forEach((c, i) => {
+          const slot   = currentSlots[i];
+          c.style.top  = slotPos[slot].top  + 'px';
+          c.style.left = slotPos[slot].left + 'px';
+        });
+
+        round++;
+        setTimeout(doRound, ROUND_MS);
+      }
+
+      setTimeout(doRound, 50);
+    }
+
+    function finishShuffle(cards, currentSlots, slotPos, gridEl) {
+      setTimeout(() => {
+        const n          = cards.length;
+        const slotToCard = new Array(n);
+        currentSlots.forEach((slot, cardIdx) => { slotToCard[slot] = cardIdx; });
+
+        const newCardOrder = slotToCard.map(cardIdx => cardOrder[cardIdx]);
+
+        cards.forEach(c => {
+          c.classList.remove('is-absolute');
+          c.style.top = c.style.left = c.style.width = c.style.height = '';
+        });
+        gridEl.style.display = gridEl.style.width = gridEl.style.height = '';
+
+        cardOrder = newCardOrder;
+        renderCards();
+
+        document.querySelectorAll('.card').forEach(c => c.classList.add('flipped'));
+
+        phase = 'waiting';
+        document.getElementById('subtitle').textContent = 'Выбери карту';
+        setCardsSelectable(true);
+      }, ROUND_MS + 80);
+    }
+
+    function onCardClick(selectedIdx) {
+      if (phase !== 'waiting') return;
+      phase = 'revealing';
+
+      setCardsSelectable(false);
+
+      const cards        = Array.from(document.querySelectorAll('.card'));
+      const selectedCard = cards[selectedIdx];
+
+      selectedCard.classList.remove('flipped');
+      selectedCard.classList.add('selected');
+
+      setTimeout(() => revealAll(cards, selectedIdx), 300);
+    }
+
+    function revealAll(cards, selectedIdx) {
+      cards.forEach((c, i) => {
+        if (i === selectedIdx) return;
+        setTimeout(() => {
+          c.classList.remove('flipped');
+          c.classList.add('not-selected');
+        }, i * 80);
+      });
+
+      const delay = cards.length * 80 + FLIP_MS;
+      setTimeout(() => {
+        phase = 'done';
+        document.getElementById('subtitle').textContent = 'Твой приз выбран!';
+        document.getElementById('replayBtn').hidden = false;
+      }, delay);
+    }
+
+    document.getElementById('playBtn').addEventListener('click', startGame);
+    document.getElementById('replayBtn').addEventListener('click', initGame);
+    document.getElementById('removeBtn').addEventListener('click', toggleRemoveMode);
+
+    window.addEventListener('resize', () => {
+      if (phase !== 'shuffling') computeCardSize();
+    });
+
+    const bg = Math.random() < 0.5 ? 'background_1.png' : 'background_2.png';
+    document.body.style.backgroundImage = `url('${bg}')`;
+
+    initGame();
+  </script>
+</body>
+</html>
