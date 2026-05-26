@@ -60,7 +60,7 @@ body {
 .back-btn img {
   width: 14px; height: 22px;
   object-fit: contain;
-  transform: scaleX(-1); /* flip arrow to point left */
+  transform: scaleX(-1);
   filter: brightness(0) invert(1);
 }
 
@@ -111,7 +111,6 @@ body {
    ALBUM SCREEN
    ───────────────────────────────────────────── */
 
-/* Main white card */
 .album-card {
   position: absolute; z-index: 5;
   left: 27px; top: 196px;
@@ -122,7 +121,6 @@ body {
   overflow: visible;
 }
 
-/* Slot circles — positioned absolute inside .album-card */
 .slot-circle {
   position: absolute;
   width: 100px; height: 100px;
@@ -132,17 +130,31 @@ body {
   cursor: default;
 }
 .slot-circle img {
+  position: absolute; inset: 0;
   width: 100%; height: 100%;
   object-fit: cover; display: block;
-  pointer-events: none; draggable: false;
+  pointer-events: none;
   -webkit-user-drag: none;
+  z-index: 2;
 }
 .slot-circle.drop-target {
   box-shadow: 0 0 0 4px #ed9023, 0 0 22px rgba(237,144,35,0.65);
 }
 
-/* Sticker tray — absolute in frame space */
-/* container offset: left=27 top=810 */
+/* Slot number — centered, hidden when filled */
+.slot-num {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-weight: 700; font-size: 65px;
+  color: rgba(255,255,255,0.85);
+  text-shadow: 0 1px 6px rgba(0,0,0,0.6);
+  pointer-events: none; z-index: 1; line-height: 1;
+  white-space: nowrap;
+}
+.slot-circle.filled .slot-num { display: none; }
+
 .sticker-area {
   position: absolute; z-index: 6;
   left: 27px; top: 810px;
@@ -189,7 +201,6 @@ body {
   white-space: nowrap;
 }
 
-/* "ПОЛУЧИТЬ ПРИЗ" on album — exact Figma position */
 .btn-album-prize {
   position: absolute; z-index: 10;
   left: 333px; top: 828px;
@@ -212,7 +223,6 @@ body {
    PRIZES / WHEEL SCREEN
    ───────────────────────────────────────────── */
 
-/* White game card */
 .prizes-card {
   position: absolute; z-index: 5;
   left: 13px; top: 218px;
@@ -223,8 +233,6 @@ body {
   overflow: hidden;
 }
 
-/* Card game grid — 3×3, centred inside .prizes-card (520px)
-   3×140 + 2×30 = 480px → 20px margin on each side             */
 #grid {
   position: absolute;
   left: 20px; top: 20px;
@@ -262,17 +270,24 @@ body {
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
 }
 .front {
   background: url('front.png') center/cover no-repeat;
   border: 1.55px solid #dab8af;
 }
 .prize-name {
-  font-size: 55px; font-weight: 700;
+  font-weight: 700;
   color: #1e293b; text-align: center;
-  padding: 4px; line-height: 1.1;
+  padding: 6px; line-height: 1.15;
   word-break: break-word; pointer-events: none;
-  overflow: hidden;
+  width: 100%;
+}
+.prize-img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover; border-radius: 6.2px;
+  pointer-events: none;
 }
 .back {
   background: url('back.png') center/cover no-repeat;
@@ -310,7 +325,6 @@ body {
 @keyframes removeCard { to { opacity: 0; transform: scale(0.7); } }
 .card.removing-anim .card-inner { animation: removeCard 0.28s ease forwards; }
 
-/* Status text */
 #subtitle {
   position: absolute; z-index: 6;
   left: 13px; top: 728px;
@@ -322,7 +336,7 @@ body {
   font-family: -apple-system, sans-serif;
 }
 
-/* Bottom buttons — exact Figma positions */
+/* Bottom buttons */
 .btn-get-prize {
   position: absolute; z-index: 10;
   left: 106px; top: 752px;
@@ -336,13 +350,22 @@ body {
   font-size: 21px; letter-spacing: 0.3px;
   cursor: pointer;
   display: flex; align-items: center; justify-content: center;
+  gap: 8px;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
 }
 .btn-get-prize:disabled {
-  background: linear-gradient(180deg, #aaa 0%, #777 100%);
+  opacity: 0.55;
   cursor: not-allowed;
-  box-shadow: none;
+}
+.spin-count-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,0.25);
+  border: 1.5px solid rgba(255,255,255,0.6);
+  border-radius: 20px;
+  min-width: 34px; height: 28px;
+  padding: 0 8px;
+  font-size: 19px; font-weight: 700; line-height: 1;
 }
 
 .btn-remove-prize {
@@ -365,26 +388,8 @@ body {
   background: linear-gradient(180deg, #6b21a8 0%, #4c1d95 100%);
 }
 
-#replayBtn {
-  position: absolute; z-index: 10;
-  left: 50%; top: 882px;
-  transform: translateX(-50%);
-  padding: 10px 36px;
-  background: rgba(255,255,255,0.18);
-  border: 1px solid rgba(255,255,255,0.5);
-  border-radius: 10px;
-  color: #fff;
-  font-family: 'Luckiest Guy', cursive;
-  font-size: 19px; letter-spacing: 0.5px;
-  cursor: pointer;
-  backdrop-filter: blur(8px);
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
-  white-space: nowrap;
-}
-
 /* ─────────────────────────────────────────────
-   PROFILE POPUP
+   POPUPS — shared overlay base
    ───────────────────────────────────────────── */
 .popup-overlay {
   position: fixed; inset: 0;
@@ -393,6 +398,8 @@ body {
   z-index: 200;
 }
 .popup-overlay.hidden { display: none; }
+.popup-overlay.centered { align-items: center; }
+
 .popup-card {
   background: #fff;
   border-radius: 24px 24px 0 0;
@@ -429,39 +436,24 @@ body {
 .prize-list-icon {
   width: 36px; height: 36px; border-radius: 50%;
   overflow: hidden; flex-shrink: 0; background: #fde8d0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
 }
 .prize-list-icon img { width: 100%; height: 100%; object-fit: cover; }
 .prize-list-name { font-weight: 600; flex: 1; }
 .prize-list-num  { color: #9ca3af; font-size: 0.78rem; }
 
-/* ─── Slot number label ─── */
-.slot-num {
-  position: absolute;
-  bottom: 6px; left: 50%;
-  transform: translateX(-50%);
-  font-family: 'Inter', -apple-system, sans-serif;
-  font-weight: 700; font-size: 13px;
-  color: #fff;
-  text-shadow: 0 1px 4px rgba(0,0,0,0.75);
-  pointer-events: none; z-index: 2; line-height: 1;
-  white-space: nowrap;
+/* ─── Buy-spins popup (centered) ─── */
+.buy-spins-card {
+  background: #fff;
+  border-radius: 24px;
+  width: 88%; max-width: 400px;
+  display: flex; flex-direction: column;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+  overflow: hidden;
 }
-
-/* ─── Spin count badge on play button ─── */
-.spin-count-badge {
-  display: inline-flex; align-items: center; justify-content: center;
-  background: rgba(255,255,255,0.25);
-  border: 1.5px solid rgba(255,255,255,0.6);
-  border-radius: 20px;
-  min-width: 34px; height: 28px;
-  padding: 0 8px;
-  font-size: 19px; font-weight: 700;
-  margin-left: 8px; line-height: 1;
-}
-
-/* ─── Buy-spins popup ─── */
 .buy-spins-body {
-  padding: 16px 20px 32px;
+  padding: 0 20px 28px;
   display: flex; flex-direction: column; gap: 18px;
 }
 .buy-spins-desc {
@@ -487,9 +479,45 @@ body {
   border: none; border-radius: 10px;
   color: #fff; font-family: 'Luckiest Guy', cursive;
   font-size: 20px; letter-spacing: 0.3px;
-  cursor: pointer; flex-shrink: 0;
+  cursor: pointer;
 }
 .btn-buy-spins:active { opacity: 0.85; }
+
+/* ─── Prize reveal popup (centered) ─── */
+.prize-popup-card {
+  background: #fff;
+  border-radius: 24px;
+  width: 84%; max-width: 380px;
+  padding: 44px 28px 32px;
+  display: flex; flex-direction: column; align-items: center; gap: 18px;
+  position: relative;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+}
+.prize-popup-close {
+  position: absolute; top: 14px; right: 14px;
+  width: 32px; height: 32px; border-radius: 50%;
+  background: rgba(0,0,0,0.07); border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.85rem; color: #6b7280;
+}
+.prize-popup-icon {
+  width: 110px; height: 110px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 80px; line-height: 1;
+  border-radius: 50%; overflow: hidden;
+  background: #fef3e2;
+}
+.prize-popup-icon img {
+  width: 100%; height: 100%; object-fit: cover;
+}
+.prize-popup-name {
+  font-family: 'Luckiest Guy', cursive;
+  font-size: 22px; color: #1c1917; text-align: center;
+  letter-spacing: 0.3px; line-height: 1.2;
+}
+.prize-popup-sub {
+  font-size: 0.88rem; color: #6b7280; text-align: center;
+}
 
 /* ─── Drag ghost ─── */
 .sticker-ghost {
@@ -518,7 +546,6 @@ body {
   <div class="bg"><img id="bgAlbum" src="" alt=""></div>
   <div class="bg-overlay"></div>
 
-  <!-- Top bar (no back arrow — album is home) -->
   <div class="currency-pill">
     <div class="currency-group">
       <span class="currency-num" id="leafCount">300</span>
@@ -536,12 +563,10 @@ body {
     <img src="https://www.figma.com/api/mcp/asset/d51206be-dd6d-4eac-8d0e-8776fd17a152" alt="">
   </button>
 
-  <!-- Slot grid card -->
   <div class="album-card">
     <div id="slotGrid"></div>
   </div>
 
-  <!-- Sticker tray -->
   <div class="sticker-area" id="stickerArea">
     <div class="sticker-badge" id="stickerBadge" style="display:none">0</div>
   </div>
@@ -557,7 +582,6 @@ body {
   <div class="bg"><img id="bgWheel" src="" alt=""></div>
   <div class="bg-overlay"></div>
 
-  <!-- Top bar -->
   <button class="back-btn" id="backToAlbumBtn">
     <img src="https://www.figma.com/api/mcp/asset/bda0236e-b313-4f0d-80c6-ae5b2f46285a" alt="←">
   </button>
@@ -578,16 +602,15 @@ body {
     <img src="https://www.figma.com/api/mcp/asset/fee6ee5c-5b46-4379-bd53-be90b51a76a2" alt="">
   </button>
 
-  <!-- Game -->
   <div class="prizes-card">
     <div id="grid"></div>
   </div>
   <p id="subtitle"></p>
 
-  <!-- Buttons -->
-  <button class="btn-get-prize" id="playBtn">ПОЛУЧИТЬ ПРИЗ <span class="spin-count-badge" id="spinCount">3</span></button>
+  <button class="btn-get-prize" id="playBtn">
+    ПОЛУЧИТЬ ПРИЗ <span class="spin-count-badge" id="spinCount">3</span>
+  </button>
   <button class="btn-remove-prize" id="removeBtn">УБРАТЬ ПРИЗ (5💎)</button>
-  <button id="replayBtn" hidden>ЕЩЁ РАЗ</button>
 </div>
 
 <!-- ══════════════════════════════════
@@ -605,10 +628,10 @@ body {
 </div>
 
 <!-- ══════════════════════════════════
-     BUY SPINS POPUP
+     BUY SPINS POPUP (centered)
 ══════════════════════════════════ -->
-<div class="popup-overlay hidden" id="buySpinsOverlay">
-  <div class="popup-card">
+<div class="popup-overlay hidden centered" id="buySpinsOverlay">
+  <div class="buy-spins-card">
     <div class="popup-handle"></div>
     <div class="popup-header">
       <h2>Купить попытки</h2>
@@ -628,6 +651,18 @@ body {
   </div>
 </div>
 
+<!-- ══════════════════════════════════
+     PRIZE REVEAL POPUP (centered)
+══════════════════════════════════ -->
+<div class="popup-overlay hidden centered" id="prizePopupOverlay">
+  <div class="prize-popup-card">
+    <button class="prize-popup-close" id="closePrizePopupBtn">✕</button>
+    <div class="prize-popup-icon" id="prizePopupIcon"></div>
+    <h2 class="prize-popup-name" id="prizePopupName"></h2>
+    <p class="prize-popup-sub" id="prizePopupSub"></p>
+  </div>
+</div>
+
 </div><!-- /frame -->
 
 <script>
@@ -640,14 +675,26 @@ const ASSET = {
 };
 
 /* ──────────────────────────────────────────────
-   CONSTANTS
+   PRIZES
+   display: emoji/text to show on card face
+   img:     local image path (overrides display)
+   bonus:   if true — winning adds +1 spin
 ────────────────────────────────────────────── */
 const ALL_PRIZES = [
-  '☕', '-10%', '-15%', '-20%', '🐱',
-  '🍬', '🐟', '🔮',
-  '💰', '🎫', '🍵', '-25%', '🎁', '🔑', '🏷️',
-  'Дополнительный приз'
+  { name: 'Билет на iPhone',        display: '🎟️' },
+  { name: '-15%',                   display: '-15%' },
+  { name: '-20%',                   display: '-20%' },
+  { name: '-30%',                   display: '-30%' },
+  { name: 'Скидка на сладкое 30%',  display: 'Скидка на сладкое 30%' },
+  { name: 'Скидка консервы 30%',    display: 'Скидка консервы 30%' },
+  { name: 'Наклейка с котом',       img: 'back.png' },
+  { name: 'Доп. попытка',           display: 'Доп.\nпопытка', bonus: true },
+  { name: 'Кофе',                   display: '☕' },
 ];
+
+/* ──────────────────────────────────────────────
+   CONSTANTS
+────────────────────────────────────────────── */
 const MAX_CARDS      = 9;
 const COLS           = 3;
 const CARD_SZ        = 140;
@@ -658,13 +705,12 @@ const ROUND_MS       = 350;
 const FLIP_MS        = 500;
 const FLIP_SETTLE_MS = 620;
 const ALBUM_SIZE     = 20;
-const SPIN_COST      = 5;
 
 /* ──────────────────────────────────────────────
    STATE
 ────────────────────────────────────────────── */
 let phase          = 'initial';
-let prizes         = [];
+let prizes         = [];   // active prize objects
 let cardOrder      = [];
 let removedSlots   = new Set();
 let removalsUsed   = 0;
@@ -672,7 +718,7 @@ let spins          = 3;
 let crystals       = 100;
 let leaves         = 300;
 let earnedStickers = 10;
-let filledSlots    = new Set();
+let filledSlots    = new Set();  // indices 0-19 filled in album
 let wonPrizes      = [];
 
 /* ──────────────────────────────────────────────
@@ -712,8 +758,18 @@ function showScreen(id) {
   document.getElementById(id).classList.add('active');
 }
 
+/* Font size for text prizes based on content length */
+function prizeFontSize(text) {
+  const chars = [...text].length; // emoji-aware
+  if (chars <= 2)  return '55px';
+  if (chars <= 4)  return '40px';
+  if (chars <= 8)  return '26px';
+  if (chars <= 13) return '19px';
+  return '15px';
+}
+
 /* ──────────────────────────────────────────────
-   CURRENCY UI
+   CURRENCY / SPIN UI
 ────────────────────────────────────────────── */
 function updateCurrencyUI() {
   ['leafCount',    'leafCount2'].forEach(id => document.getElementById(id).textContent    = leaves);
@@ -726,8 +782,7 @@ function updateCurrencyUI() {
 /* ──────────────────────────────────────────────
    ALBUM — slot grid
    Slot positions in .album-card coordinate space:
-   cols (from Figma frame): 67,175,283,391 → minus card.left(27) = 40,148,256,364
-   rows (from Figma frame): 225,339,453,567,681 → minus card.top(196) = 29,143,257,371,485
+   cols → 40, 148, 256, 364   rows → 29, 143, 257, 371, 485
 ────────────────────────────────────────────── */
 const SLOT_COL = [40, 148, 256, 364];
 const SLOT_ROW = [29, 143, 257, 371, 485];
@@ -739,19 +794,22 @@ function buildSlotGrid() {
     for (let c = 0; c < 4; c++) {
       const i   = r * 4 + c;
       const div = document.createElement('div');
-      div.className      = 'slot-circle';
-      div.dataset.index  = i;
-      div.style.left     = SLOT_COL[c] + 'px';
-      div.style.top      = SLOT_ROW[r] + 'px';
+      div.className     = 'slot-circle';
+      div.dataset.index = i;
+      div.style.left    = SLOT_COL[c] + 'px';
+      div.style.top     = SLOT_ROW[r] + 'px';
+
       const img = document.createElement('img');
-      img.src = ASSET.emptySlot;
-      img.alt = String(i + 1);
+      img.src       = ASSET.emptySlot;
+      img.alt       = String(i + 1);
       img.draggable = false;
       div.appendChild(img);
+
       const num = document.createElement('span');
       num.className   = 'slot-num';
       num.textContent = String(i + 1);
       div.appendChild(num);
+
       grid.appendChild(div);
     }
   }
@@ -759,19 +817,27 @@ function buildSlotGrid() {
 
 function updateSlotGrid() {
   document.querySelectorAll('#slotGrid .slot-circle').forEach((s, i) => {
-    s.querySelector('img').src = filledSlots.has(i) ? ASSET.filledSlot : ASSET.emptySlot;
+    const filled = filledSlots.has(i);
+    s.querySelector('img').src = filled ? 'back.png' : ASSET.emptySlot;
+    s.classList.toggle('filled', filled);
   });
+}
+
+/* Returns index of next empty slot (sequential), or -1 */
+function getNextSlot() {
+  for (let i = 0; i < ALBUM_SIZE; i++) {
+    if (!filledSlots.has(i)) return i;
+  }
+  return -1;
 }
 
 /* ──────────────────────────────────────────────
    STICKER TRAY
-   Chips stacked 23px apart: positions 0,23,46,69,92 (left within .sticker-area)
 ────────────────────────────────────────────── */
 function updateStickerTray() {
   const area  = document.getElementById('stickerArea');
   const badge = document.getElementById('stickerBadge');
 
-  // Remove old chips (leave badge in DOM)
   area.querySelectorAll('.sticker-chip').forEach(c => c.remove());
 
   if (earnedStickers === 0) {
@@ -782,9 +848,9 @@ function updateStickerTray() {
   const vis = Math.min(5, earnedStickers);
   for (let i = 0; i < vis; i++) {
     const chip = document.createElement('div');
-    chip.className    = 'sticker-chip';
-    chip.style.left   = (i * 23) + 'px';
-    chip.style.top    = '5px';
+    chip.className  = 'sticker-chip';
+    chip.style.left = (i * 23) + 'px';
+    chip.style.top  = '5px';
     chip.style.zIndex = vis - i;
     const img = document.createElement('img');
     img.src       = 'back.png';
@@ -793,10 +859,9 @@ function updateStickerTray() {
     chip.appendChild(img);
     chip.addEventListener('mousedown',  e => startDrag(e));
     chip.addEventListener('touchstart', e => startDrag(e), { passive: false });
-    area.insertBefore(chip, badge); // insert before badge so z-index stacks correctly
+    area.insertBefore(chip, badge);
   }
 
-  // Badge position: right edge of last chip + a little
   const lastLeft = (vis - 1) * 23 + 100 - 20;
   badge.style.left    = lastLeft + 'px';
   badge.style.top     = '70px';
@@ -805,9 +870,9 @@ function updateStickerTray() {
 }
 
 /* ──────────────────────────────────────────────
-   DRAG & DROP
+   DRAG & DROP  — places sticker in next slot
 ────────────────────────────────────────────── */
-let dragGhost = null, dragActive = false, dropSlot = null;
+let dragGhost = null, dragActive = false;
 
 function startDrag(e) {
   if (earnedStickers === 0) return;
@@ -822,10 +887,22 @@ function startDrag(e) {
   const { x, y } = getPos(e);
   posGhost(x, y);
 
+  // Pre-highlight next slot
+  highlightNextSlot();
+
   document.addEventListener('mousemove', onMove);
   document.addEventListener('mouseup',   onEnd);
   document.addEventListener('touchmove', onMove, { passive: false });
   document.addEventListener('touchend',  onEnd);
+}
+
+function highlightNextSlot() {
+  document.querySelectorAll('.slot-circle.drop-target').forEach(s => s.classList.remove('drop-target'));
+  const idx = getNextSlot();
+  if (idx >= 0) {
+    const s = document.querySelector(`#slotGrid .slot-circle[data-index="${idx}"]`);
+    if (s) s.classList.add('drop-target');
+  }
 }
 
 function getPos(e) {
@@ -843,24 +920,9 @@ function onMove(e) {
   e.preventDefault();
   const { x, y } = getPos(e);
   posGhost(x, y);
-
-  dragGhost.style.display = 'none';
-  const el = document.elementFromPoint(x, y);
-  dragGhost.style.display = '';
-
-  document.querySelectorAll('.slot-circle.drop-target').forEach(s => s.classList.remove('drop-target'));
-  dropSlot = null;
-
-  if (el) {
-    const s = el.closest('#slotGrid .slot-circle');
-    if (s && !filledSlots.has(Number(s.dataset.index))) {
-      s.classList.add('drop-target');
-      dropSlot = s;
-    }
-  }
 }
 
-function onEnd() {
+function onEnd(e) {
   if (!dragActive) return;
   dragActive = false;
   document.removeEventListener('mousemove', onMove);
@@ -869,15 +931,21 @@ function onEnd() {
   document.removeEventListener('touchend',  onEnd);
   document.querySelectorAll('.slot-circle.drop-target').forEach(s => s.classList.remove('drop-target'));
 
-  if (dropSlot && earnedStickers > 0) {
-    const idx = Number(dropSlot.dataset.index);
-    if (!filledSlots.has(idx)) {
+  // Accept drop if cursor is over album card area
+  const { x, y } = getPos(e);
+  dragGhost.style.display = 'none';
+  const el = document.elementFromPoint(x, y);
+  dragGhost.style.display = '';
+
+  const overAlbum = el && (el.closest('.album-card') || el.closest('.sticker-area'));
+  if (overAlbum && earnedStickers > 0) {
+    const idx = getNextSlot();
+    if (idx >= 0) {
       filledSlots.add(idx);
       earnedStickers--;
       updateSlotGrid();
       updateStickerTray();
     }
-    dropSlot = null;
   }
 
   dragGhost?.remove();
@@ -896,8 +964,11 @@ function openProfile() {
     wonPrizes.slice().reverse().forEach((p, i) => {
       const item = document.createElement('div');
       item.className = 'prize-list-item';
+      const iconHtml = p.img
+        ? `<img src="${p.img}" alt="">`
+        : `<span style="font-size:20px">${p.display || ''}</span>`;
       item.innerHTML = `
-        <div class="prize-list-icon"><img src="${ASSET.filledSlot}" alt=""></div>
+        <div class="prize-list-icon">${iconHtml}</div>
         <span class="prize-list-name">${p.name}</span>
         <span class="prize-list-num">#${wonPrizes.length - i}</span>`;
       list.appendChild(item);
@@ -916,8 +987,75 @@ document.getElementById('profileBtnAlbum').addEventListener('click', openProfile
 document.getElementById('profileBtnWheel').addEventListener('click', openProfile);
 
 /* ──────────────────────────────────────────────
+   BUY SPINS POPUP
+────────────────────────────────────────────── */
+function openBuySpins() {
+  document.getElementById('buySpinsSlider').value = 1;
+  updateBuySpinsUI();
+  document.getElementById('buySpinsOverlay').classList.remove('hidden');
+}
+
+function updateBuySpinsUI() {
+  const qty = Number(document.getElementById('buySpinsSlider').value);
+  document.getElementById('buySpinsQty').textContent   = qty;
+  document.getElementById('buySpinsPrice').textContent = qty * 10;
+}
+
+document.getElementById('buySpinsSlider').addEventListener('input', updateBuySpinsUI);
+document.getElementById('confirmBuySpinsBtn').addEventListener('click', () => {
+  spins += Number(document.getElementById('buySpinsSlider').value);
+  document.getElementById('buySpinsOverlay').classList.add('hidden');
+  updateCurrencyUI();
+});
+document.getElementById('closeBuySpinsBtn').addEventListener('click', () =>
+  document.getElementById('buySpinsOverlay').classList.add('hidden'));
+document.getElementById('buySpinsOverlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('buySpinsOverlay'))
+    document.getElementById('buySpinsOverlay').classList.add('hidden');
+});
+
+/* ──────────────────────────────────────────────
+   PRIZE REVEAL POPUP
+────────────────────────────────────────────── */
+function showPrizePopup(prize) {
+  const iconEl = document.getElementById('prizePopupIcon');
+  const nameEl = document.getElementById('prizePopupName');
+  const subEl  = document.getElementById('prizePopupSub');
+
+  if (prize.img) {
+    iconEl.innerHTML = `<img src="${prize.img}" alt="">`;
+  } else {
+    iconEl.textContent = prize.display || prize.name;
+  }
+  nameEl.textContent = prize.name;
+  subEl.textContent  = prize.bonus ? '+1 попытка добавлена!' : '';
+
+  document.getElementById('prizePopupOverlay').classList.remove('hidden');
+}
+
+function closePrizePopup() {
+  document.getElementById('prizePopupOverlay').classList.add('hidden');
+  initGame();
+}
+
+document.getElementById('closePrizePopupBtn').addEventListener('click', closePrizePopup);
+document.getElementById('prizePopupOverlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('prizePopupOverlay')) closePrizePopup();
+});
+
+/* ──────────────────────────────────────────────
    CARD GAME
 ────────────────────────────────────────────── */
+function prizeCardContent(prize) {
+  if (prize.img) {
+    return `<img class="prize-img" src="${prize.img}" alt="${prize.name}">`;
+  }
+  const text = prize.display || prize.name;
+  // Render newlines as <br>
+  const html = text.replace(/\n/g, '<br>');
+  return `<span class="prize-name" style="font-size:${prizeFontSize(text)}">${html}</span>`;
+}
+
 function renderCards() {
   const grid = document.getElementById('grid');
   grid.innerHTML = '';
@@ -927,7 +1065,7 @@ function renderCards() {
     el.dataset.index = i;
     el.innerHTML     = `
       <div class="card-inner">
-        <div class="front"><span class="prize-name">${prizes[cardOrder[i]]}</span></div>
+        <div class="front">${prizeCardContent(prizes[cardOrder[i]])}</div>
         <div class="back"></div>
       </div>`;
     grid.appendChild(el);
@@ -974,7 +1112,6 @@ function initGame() {
   removalsUsed = 0;
   renderCards();
   document.getElementById('subtitle').textContent = '';
-  document.getElementById('replayBtn').hidden     = true;
   updateRemoveBtn();
   updateCurrencyUI();
 }
@@ -1011,15 +1148,11 @@ function onRemoveCardClick(idx) {
 
 function startGame() {
   if (phase !== 'initial') return;
-  if (spins <= 0) {
-    openBuySpins();
-    return;
-  }
+  if (spins <= 0) { openBuySpins(); return; }
   setCardsRemovable(false);
 
-  // Rebuild without removed slots
   if (removedSlots.size > 0) {
-    prizes       = Array.from({ length: prizes.length }, (_, i) => i)
+    prizes    = Array.from({ length: prizes.length }, (_, i) => i)
       .filter(i => !removedSlots.has(i))
       .map(i => prizes[cardOrder[i]]);
     cardOrder    = Array.from({ length: prizes.length }, (_, i) => i);
@@ -1031,7 +1164,6 @@ function startGame() {
   spins--;
   updateCurrencyUI();
 
-  document.getElementById('replayBtn').hidden     = true;
   document.getElementById('removeBtn').hidden     = true;
   document.getElementById('subtitle').textContent = '';
 
@@ -1045,29 +1177,25 @@ function runShuffle() {
   const cards  = Array.from(gridEl.querySelectorAll('.card'));
   const n      = cards.length;
 
-  // Snapshot positions before freezing layout
   const gridRect = gridEl.getBoundingClientRect();
   const initPos  = cards.map(c => {
     const r = c.getBoundingClientRect();
     return { top: r.top - gridRect.top, left: r.left - gridRect.left };
   });
 
-  // Freeze grid to block-display with known size
-  const cols     = COLS;
-  const rows     = Math.ceil(n / cols);
-  const gw       = cols * CARD_SZ + (cols - 1) * GAP_X;
-  const gh       = rows * CARD_SZ + (rows - 1) * GAP_Y;
+  const cols = COLS;
+  const rows = Math.ceil(n / cols);
+  const gw   = cols * CARD_SZ + (cols - 1) * GAP_X;
+  const gh   = rows * CARD_SZ + (rows - 1) * GAP_Y;
   gridEl.style.width   = gw + 'px';
   gridEl.style.height  = gh + 'px';
   gridEl.style.display = 'block';
 
-  // Precompute target slot positions
   const slotPos = Array.from({ length: n }, (_, idx) => ({
     top:  Math.floor(idx / cols) * (CARD_SZ + GAP_Y),
     left: (idx % cols)           * (CARD_SZ + GAP_X),
   }));
 
-  // Make cards absolute
   cards.forEach((c, i) => {
     c.classList.add('is-absolute');
     c.style.top    = initPos[i].top  + 'px';
@@ -1128,66 +1256,36 @@ function onCardClick(selectedIdx) {
 }
 
 function revealAll(cards, selectedIdx) {
+  // Reveal all non-selected cards one by one
   cards.forEach((c, i) => {
     if (i === selectedIdx) return;
-    setTimeout(() => { c.classList.remove('flipped'); c.classList.add('not-selected'); }, i * 50);
+    setTimeout(() => { c.classList.remove('flipped'); c.classList.add('not-selected'); }, i * 60);
   });
+
+  // After all revealed → show prize popup
+  const delay = cards.length * 60 + FLIP_MS;
   setTimeout(() => {
     phase = 'done';
-    const name = prizes[cardOrder[selectedIdx]];
-    document.getElementById('subtitle').textContent = `🎉 ${name}`;
-    document.getElementById('replayBtn').hidden = false;
-    if (name === 'Дополнительный приз') {
-      spins++;
-    }
-    updateRemoveBtn();
-    updateCurrencyUI();
-    wonPrizes.push({ name });
+    document.getElementById('subtitle').textContent = '';
+
+    const prize = prizes[cardOrder[selectedIdx]];
+
+    if (prize.bonus) spins++;
+    wonPrizes.push(prize);
     earnedStickers++;
     updateStickerTray();
-  }, cards.length * 50 + FLIP_MS);
+    updateCurrencyUI();
+
+    showPrizePopup(prize);
+  }, delay);
 }
-
-/* ──────────────────────────────────────────────
-   BUY SPINS POPUP
-────────────────────────────────────────────── */
-function openBuySpins() {
-  const slider = document.getElementById('buySpinsSlider');
-  slider.value = 1;
-  updateBuySpinsUI();
-  document.getElementById('buySpinsOverlay').classList.remove('hidden');
-}
-
-function updateBuySpinsUI() {
-  const qty   = Number(document.getElementById('buySpinsSlider').value);
-  const price = qty * 10;
-  document.getElementById('buySpinsQty').textContent   = qty;
-  document.getElementById('buySpinsPrice').textContent = price;
-}
-
-document.getElementById('buySpinsSlider').addEventListener('input', updateBuySpinsUI);
-
-document.getElementById('confirmBuySpinsBtn').addEventListener('click', () => {
-  const qty = Number(document.getElementById('buySpinsSlider').value);
-  spins += qty;
-  document.getElementById('buySpinsOverlay').classList.add('hidden');
-  updateCurrencyUI();
-});
-
-document.getElementById('closeBuySpinsBtn').addEventListener('click', () =>
-  document.getElementById('buySpinsOverlay').classList.add('hidden'));
-document.getElementById('buySpinsOverlay').addEventListener('click', e => {
-  if (e.target === document.getElementById('buySpinsOverlay'))
-    document.getElementById('buySpinsOverlay').classList.add('hidden');
-});
 
 /* ──────────────────────────────────────────────
    EVENT BINDINGS
 ────────────────────────────────────────────── */
-document.getElementById('playBtn').addEventListener('click',         startGame);
-document.getElementById('replayBtn').addEventListener('click',       initGame);
-document.getElementById('removeBtn').addEventListener('click',       toggleRemoveMode);
-document.getElementById('backToAlbumBtn').addEventListener('click',  () => showScreen('albumScreen'));
+document.getElementById('playBtn').addEventListener('click', startGame);
+document.getElementById('removeBtn').addEventListener('click', toggleRemoveMode);
+document.getElementById('backToAlbumBtn').addEventListener('click', () => showScreen('albumScreen'));
 document.getElementById('getAlbumPrizeBtn').addEventListener('click', () => {
   if (phase === 'done' || phase === 'initial') initGame();
   showScreen('wheelScreen');
