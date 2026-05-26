@@ -223,19 +223,20 @@ body {
   overflow: hidden;
 }
 
-/* Card game grid — exact Figma offset inside .prizes-card */
+/* Card game grid — 3×3, centred inside .prizes-card (520px)
+   3×140 + 2×30 = 480px → 20px margin on each side             */
 #grid {
   position: absolute;
-  left: 20px; top: 16px;
+  left: 20px; top: 20px;
   display: grid;
-  grid-template-columns: repeat(4, 108.5px);
-  column-gap: 15.5px;
-  row-gap: 18.21px;
+  grid-template-columns: repeat(3, 140px);
+  column-gap: 30px;
+  row-gap: 30px;
 }
 
 /* ─── Card 3-D flip ─── */
 .card {
-  width: 108.5px; height: 108.5px;
+  width: 140px; height: 140px;
   perspective: 500px;
   cursor: default;
   -webkit-user-select: none; user-select: none;
@@ -267,7 +268,7 @@ body {
   border: 1.55px solid #dab8af;
 }
 .prize-name {
-  font-size: 9px; font-weight: 700;
+  font-size: 11px; font-weight: 700;
   color: #1e293b; text-align: center;
   padding: 5px 4px; line-height: 1.25;
   word-break: break-word; pointer-events: none;
@@ -288,7 +289,7 @@ body {
   border-color: #22c55e;
   box-shadow: 0 0 22px rgba(34,197,94,0.55);
 }
-.card.selected .prize-name { color: #e2e8f0; font-size: 10px; }
+.card.selected .prize-name { color: #e2e8f0; font-size: 12px; }
 .card.not-selected .front { opacity: 0.55; }
 
 @keyframes popIn {
@@ -565,11 +566,11 @@ const ALL_PRIZES = [
   '50 бонусов', 'Билет', 'Доп. ход',
   'Чай', '-25%', 'Сюрприз', 'Брелок', 'Наклейка'
 ];
-const MAX_CARDS      = 16;
-const COLS           = 4;
-const CARD_SZ        = 108.5;
-const GAP_X          = 15.5;
-const GAP_Y          = 18.21;
+const MAX_CARDS      = 9;
+const COLS           = 3;
+const CARD_SZ        = 140;
+const GAP_X          = 30;
+const GAP_Y          = 30;
 const SHUFFLE_ROUNDS = 6;
 const ROUND_MS       = 350;
 const FLIP_MS        = 500;
