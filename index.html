@@ -268,10 +268,11 @@ body {
   border: 1.55px solid #dab8af;
 }
 .prize-name {
-  font-size: 11px; font-weight: 700;
+  font-size: 55px; font-weight: 700;
   color: #1e293b; text-align: center;
-  padding: 5px 4px; line-height: 1.25;
+  padding: 4px; line-height: 1.1;
   word-break: break-word; pointer-events: none;
+  overflow: hidden;
 }
 .back {
   background: url('back.png') center/cover no-repeat;
@@ -289,7 +290,7 @@ body {
   border-color: #22c55e;
   box-shadow: 0 0 22px rgba(34,197,94,0.55);
 }
-.card.selected .prize-name { color: #e2e8f0; font-size: 12px; }
+.card.selected .prize-name { color: #e2e8f0; }
 .card.not-selected .front { opacity: 0.55; }
 
 @keyframes popIn {
@@ -433,6 +434,63 @@ body {
 .prize-list-name { font-weight: 600; flex: 1; }
 .prize-list-num  { color: #9ca3af; font-size: 0.78rem; }
 
+/* ─── Slot number label ─── */
+.slot-num {
+  position: absolute;
+  bottom: 6px; left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-weight: 700; font-size: 13px;
+  color: #fff;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.75);
+  pointer-events: none; z-index: 2; line-height: 1;
+  white-space: nowrap;
+}
+
+/* ─── Spin count badge on play button ─── */
+.spin-count-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,0.25);
+  border: 1.5px solid rgba(255,255,255,0.6);
+  border-radius: 20px;
+  min-width: 34px; height: 28px;
+  padding: 0 8px;
+  font-size: 19px; font-weight: 700;
+  margin-left: 8px; line-height: 1;
+}
+
+/* ─── Buy-spins popup ─── */
+.buy-spins-body {
+  padding: 16px 20px 32px;
+  display: flex; flex-direction: column; gap: 18px;
+}
+.buy-spins-desc {
+  font-size: 0.9rem; color: #4b5563; text-align: center;
+}
+.buy-spins-slider-wrap { display: flex; flex-direction: column; gap: 6px; }
+.buy-spins-slider-wrap input[type=range] {
+  width: 100%; accent-color: #ed9023;
+  height: 6px; cursor: pointer;
+}
+.buy-spins-range-labels {
+  display: flex; justify-content: space-between;
+  font-size: 0.78rem; color: #9ca3af;
+}
+.buy-spins-info {
+  background: #fef3e2; border-radius: 10px;
+  padding: 12px 16px; text-align: center;
+  font-size: 1.05rem; font-weight: 600; color: #92400e;
+}
+.btn-buy-spins {
+  width: 100%; height: 48px;
+  background: linear-gradient(180deg, #ed9123 0%, #de4426 100%);
+  border: none; border-radius: 10px;
+  color: #fff; font-family: 'Luckiest Guy', cursive;
+  font-size: 20px; letter-spacing: 0.3px;
+  cursor: pointer; flex-shrink: 0;
+}
+.btn-buy-spins:active { opacity: 0.85; }
+
 /* ─── Drag ghost ─── */
 .sticker-ghost {
   position: fixed; pointer-events: none; z-index: 300;
@@ -527,7 +585,7 @@ body {
   <p id="subtitle"></p>
 
   <!-- Buttons -->
-  <button class="btn-get-prize" id="playBtn">ПОЛУЧИТЬ ПРИЗ (5💎)</button>
+  <button class="btn-get-prize" id="playBtn">ПОЛУЧИТЬ ПРИЗ <span class="spin-count-badge" id="spinCount">3</span></button>
   <button class="btn-remove-prize" id="removeBtn">УБРАТЬ ПРИЗ (5💎)</button>
   <button id="replayBtn" hidden>ЕЩЁ РАЗ</button>
 </div>
@@ -546,6 +604,30 @@ body {
   </div>
 </div>
 
+<!-- ══════════════════════════════════
+     BUY SPINS POPUP
+══════════════════════════════════ -->
+<div class="popup-overlay hidden" id="buySpinsOverlay">
+  <div class="popup-card">
+    <div class="popup-handle"></div>
+    <div class="popup-header">
+      <h2>Купить попытки</h2>
+      <button class="popup-close-btn" id="closeBuySpinsBtn">✕</button>
+    </div>
+    <div class="buy-spins-body">
+      <p class="buy-spins-desc">10 бонусов SPAR = 1 попытка</p>
+      <div class="buy-spins-slider-wrap">
+        <input type="range" id="buySpinsSlider" min="1" max="50" value="1">
+        <div class="buy-spins-range-labels"><span>1</span><span>50</span></div>
+      </div>
+      <div class="buy-spins-info">
+        <span id="buySpinsQty">1</span> попытка = <span id="buySpinsPrice">10</span> бонусов SPAR
+      </div>
+      <button class="btn-buy-spins" id="confirmBuySpinsBtn">КУПИТЬ</button>
+    </div>
+  </div>
+</div>
+
 </div><!-- /frame -->
 
 <script>
@@ -561,10 +643,10 @@ const ASSET = {
    CONSTANTS
 ────────────────────────────────────────────── */
 const ALL_PRIZES = [
-  'Кофе', '-10%', '-15%', '-20%', 'Фишка с котом',
-  'Скидка на сладкое', 'Кошачий корм', 'Предсказание',
-  '50 бонусов', 'Билет', 'Доп. ход',
-  'Чай', '-25%', 'Сюрприз', 'Брелок', 'Наклейка'
+  '☕', '-10%', '-15%', '-20%', '🐱',
+  '🍬', '🐟', '🔮',
+  '💰', '🎫', '🍵', '-25%', '🎁', '🔑', '🏷️',
+  'Дополнительный приз'
 ];
 const MAX_CARDS      = 9;
 const COLS           = 3;
@@ -586,9 +668,10 @@ let prizes         = [];
 let cardOrder      = [];
 let removedSlots   = new Set();
 let removalsUsed   = 0;
+let spins          = 3;
 let crystals       = 100;
 let leaves         = 300;
-let earnedStickers = 0;
+let earnedStickers = 10;
 let filledSlots    = new Set();
 let wonPrizes      = [];
 
@@ -635,8 +718,9 @@ function showScreen(id) {
 function updateCurrencyUI() {
   ['leafCount',    'leafCount2'].forEach(id => document.getElementById(id).textContent    = leaves);
   ['crystalCount', 'crystalCount2'].forEach(id => document.getElementById(id).textContent = crystals);
+  document.getElementById('spinCount').textContent = spins;
   const btn = document.getElementById('playBtn');
-  btn.disabled = (crystals < SPIN_COST || phase !== 'initial');
+  btn.disabled = phase !== 'initial';
 }
 
 /* ──────────────────────────────────────────────
@@ -664,6 +748,10 @@ function buildSlotGrid() {
       img.alt = String(i + 1);
       img.draggable = false;
       div.appendChild(img);
+      const num = document.createElement('span');
+      num.className   = 'slot-num';
+      num.textContent = String(i + 1);
+      div.appendChild(num);
       grid.appendChild(div);
     }
   }
@@ -699,7 +787,7 @@ function updateStickerTray() {
     chip.style.top    = '5px';
     chip.style.zIndex = vis - i;
     const img = document.createElement('img');
-    img.src       = ASSET.filledSlot;
+    img.src       = 'back.png';
     img.alt       = 'стикер';
     img.draggable = false;
     chip.appendChild(img);
@@ -728,7 +816,7 @@ function startDrag(e) {
 
   dragGhost = document.createElement('div');
   dragGhost.className = 'sticker-ghost';
-  dragGhost.innerHTML = `<img src="${ASSET.filledSlot}" alt="" draggable="false">`;
+  dragGhost.innerHTML = `<img src="back.png" alt="" draggable="false">`;
   document.body.appendChild(dragGhost);
 
   const { x, y } = getPos(e);
@@ -922,7 +1010,11 @@ function onRemoveCardClick(idx) {
 }
 
 function startGame() {
-  if (phase !== 'initial' || crystals < SPIN_COST) return;
+  if (phase !== 'initial') return;
+  if (spins <= 0) {
+    openBuySpins();
+    return;
+  }
   setCardsRemovable(false);
 
   // Rebuild without removed slots
@@ -936,7 +1028,7 @@ function startGame() {
   }
 
   phase = 'flipping';
-  crystals -= SPIN_COST;
+  spins--;
   updateCurrencyUI();
 
   document.getElementById('replayBtn').hidden     = true;
@@ -1045,6 +1137,9 @@ function revealAll(cards, selectedIdx) {
     const name = prizes[cardOrder[selectedIdx]];
     document.getElementById('subtitle').textContent = `🎉 ${name}`;
     document.getElementById('replayBtn').hidden = false;
+    if (name === 'Дополнительный приз') {
+      spins++;
+    }
     updateRemoveBtn();
     updateCurrencyUI();
     wonPrizes.push({ name });
@@ -1052,6 +1147,39 @@ function revealAll(cards, selectedIdx) {
     updateStickerTray();
   }, cards.length * 50 + FLIP_MS);
 }
+
+/* ──────────────────────────────────────────────
+   BUY SPINS POPUP
+────────────────────────────────────────────── */
+function openBuySpins() {
+  const slider = document.getElementById('buySpinsSlider');
+  slider.value = 1;
+  updateBuySpinsUI();
+  document.getElementById('buySpinsOverlay').classList.remove('hidden');
+}
+
+function updateBuySpinsUI() {
+  const qty   = Number(document.getElementById('buySpinsSlider').value);
+  const price = qty * 10;
+  document.getElementById('buySpinsQty').textContent   = qty;
+  document.getElementById('buySpinsPrice').textContent = price;
+}
+
+document.getElementById('buySpinsSlider').addEventListener('input', updateBuySpinsUI);
+
+document.getElementById('confirmBuySpinsBtn').addEventListener('click', () => {
+  const qty = Number(document.getElementById('buySpinsSlider').value);
+  spins += qty;
+  document.getElementById('buySpinsOverlay').classList.add('hidden');
+  updateCurrencyUI();
+});
+
+document.getElementById('closeBuySpinsBtn').addEventListener('click', () =>
+  document.getElementById('buySpinsOverlay').classList.add('hidden'));
+document.getElementById('buySpinsOverlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('buySpinsOverlay'))
+    document.getElementById('buySpinsOverlay').classList.add('hidden');
+});
 
 /* ──────────────────────────────────────────────
    EVENT BINDINGS
