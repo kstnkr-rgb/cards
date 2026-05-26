@@ -147,10 +147,10 @@ body {
   top: 50%; left: 50%;
   transform: translate(-50%, -50%);
   font-family: 'Inter', -apple-system, sans-serif;
-  font-weight: 700; font-size: 65px;
-  color: rgba(255,255,255,0.85);
-  text-shadow: 0 1px 6px rgba(0,0,0,0.6);
-  pointer-events: none; z-index: 1; line-height: 1;
+  font-weight: 900; font-size: 48px;
+  color: #3b1a0e;
+  text-shadow: 0 0 6px rgba(255,255,255,0.9), 0 1px 0 rgba(255,255,255,0.7);
+  pointer-events: none; z-index: 3; line-height: 1;
   white-space: nowrap;
 }
 .slot-circle.filled .slot-num { display: none; }
@@ -488,8 +488,8 @@ body {
   background: #fff;
   border-radius: 24px;
   width: 84%; max-width: 380px;
-  padding: 44px 28px 32px;
-  display: flex; flex-direction: column; align-items: center; gap: 18px;
+  padding: 44px 28px 36px;
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
   position: relative;
   box-shadow: 0 8px 40px rgba(0,0,0,0.3);
 }
@@ -500,19 +500,13 @@ body {
   display: flex; align-items: center; justify-content: center;
   font-size: 0.85rem; color: #6b7280;
 }
-.prize-popup-icon {
-  width: 110px; height: 110px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 80px; line-height: 1;
-  border-radius: 50%; overflow: hidden;
-  background: #fef3e2;
-}
-.prize-popup-icon img {
-  width: 100%; height: 100%; object-fit: cover;
+.prize-popup-label {
+  font-size: 0.78rem; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 1.2px; color: #ed9023;
 }
 .prize-popup-name {
   font-family: 'Luckiest Guy', cursive;
-  font-size: 22px; color: #1c1917; text-align: center;
+  font-size: 28px; color: #1c1917; text-align: center;
   letter-spacing: 0.3px; line-height: 1.2;
 }
 .prize-popup-sub {
@@ -657,9 +651,21 @@ body {
 <div class="popup-overlay hidden centered" id="prizePopupOverlay">
   <div class="prize-popup-card">
     <button class="prize-popup-close" id="closePrizePopupBtn">✕</button>
-    <div class="prize-popup-icon" id="prizePopupIcon"></div>
+    <span class="prize-popup-label">🎉 Ваш приз</span>
     <h2 class="prize-popup-name" id="prizePopupName"></h2>
     <p class="prize-popup-sub" id="prizePopupSub"></p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     ALBUM COMPLETE POPUP (centered)
+══════════════════════════════════ -->
+<div class="popup-overlay hidden centered" id="albumCompleteOverlay">
+  <div class="prize-popup-card">
+    <button class="prize-popup-close" id="closeAlbumCompleteBtn">✕</button>
+    <span class="prize-popup-label">🏆 Альбом заполнен!</span>
+    <h2 class="prize-popup-name">Поздравляем!</h2>
+    <p class="prize-popup-sub">Теперь вы можете получить милого котика за <strong>199 р.</strong></p>
   </div>
 </div>
 
@@ -674,6 +680,9 @@ const ASSET = {
   filledSlot: 'https://www.figma.com/api/mcp/asset/fe77b678-f382-41af-8537-9776b8f658e2',
 };
 
+// Cat image for the prize card (different from sticker chip back.png)
+const ASSET_CAT_PRIZE = ASSET.filledSlot;
+
 /* ──────────────────────────────────────────────
    PRIZES
    display: emoji/text to show on card face
@@ -687,7 +696,7 @@ const ALL_PRIZES = [
   { name: '-30%',                   display: '-30%' },
   { name: 'Скидка на сладкое 30%',  display: 'Скидка на сладкое 30%' },
   { name: 'Скидка консервы 30%',    display: 'Скидка консервы 30%' },
-  { name: 'Наклейка с котом',       img: 'back.png' },
+  { name: 'Наклейка с котом',       img: ASSET_CAT_PRIZE },
   { name: 'Доп. попытка',           display: 'Доп.\nпопытка', bonus: true },
   { name: 'Кофе',                   display: '☕' },
 ];
@@ -945,6 +954,9 @@ function onEnd(e) {
       earnedStickers--;
       updateSlotGrid();
       updateStickerTray();
+      if (filledSlots.size === ALBUM_SIZE) {
+        setTimeout(showAlbumComplete, 400);
+      }
     }
   }
 
@@ -1018,18 +1030,8 @@ document.getElementById('buySpinsOverlay').addEventListener('click', e => {
    PRIZE REVEAL POPUP
 ────────────────────────────────────────────── */
 function showPrizePopup(prize) {
-  const iconEl = document.getElementById('prizePopupIcon');
-  const nameEl = document.getElementById('prizePopupName');
-  const subEl  = document.getElementById('prizePopupSub');
-
-  if (prize.img) {
-    iconEl.innerHTML = `<img src="${prize.img}" alt="">`;
-  } else {
-    iconEl.textContent = prize.display || prize.name;
-  }
-  nameEl.textContent = prize.name;
-  subEl.textContent  = prize.bonus ? '+1 попытка добавлена!' : '';
-
+  document.getElementById('prizePopupName').textContent = prize.name;
+  document.getElementById('prizePopupSub').textContent  = prize.bonus ? '+1 попытка добавлена!' : '';
   document.getElementById('prizePopupOverlay').classList.remove('hidden');
 }
 
@@ -1041,6 +1043,20 @@ function closePrizePopup() {
 document.getElementById('closePrizePopupBtn').addEventListener('click', closePrizePopup);
 document.getElementById('prizePopupOverlay').addEventListener('click', e => {
   if (e.target === document.getElementById('prizePopupOverlay')) closePrizePopup();
+});
+
+/* ──────────────────────────────────────────────
+   ALBUM COMPLETE POPUP
+────────────────────────────────────────────── */
+function showAlbumComplete() {
+  document.getElementById('albumCompleteOverlay').classList.remove('hidden');
+}
+function closeAlbumComplete() {
+  document.getElementById('albumCompleteOverlay').classList.add('hidden');
+}
+document.getElementById('closeAlbumCompleteBtn').addEventListener('click', closeAlbumComplete);
+document.getElementById('albumCompleteOverlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('albumCompleteOverlay')) closeAlbumComplete();
 });
 
 /* ──────────────────────────────────────────────
@@ -1125,8 +1141,10 @@ function toggleRemoveMode() {
   } else if (phase === 'initial') {
     phase = 'removing';
     document.getElementById('subtitle').textContent = 'Нажми на карту, чтобы убрать её';
-    document.getElementById('removeBtn').textContent = 'ОТМЕНА';
-    document.getElementById('removeBtn').classList.add('removing');
+    const rBtn = document.getElementById('removeBtn');
+    rBtn.hidden = false;
+    rBtn.textContent = 'ОТМЕНА';
+    rBtn.classList.add('removing');
     setCardsRemovable(true);
   }
 }
